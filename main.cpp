@@ -18,7 +18,7 @@ int main( int argc, const char* argv[] )
   DataSet trainingData = DataSet(500);
   DataSet testData = DataSet(100); 
   Network.SGD(trainingData, 30, 10, 3.0, testData);
-  Network.feedforward(activation);
+  PrintVector(Network.feedforward(activation));
   cout << endl;
   
   return 0;

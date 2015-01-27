@@ -77,14 +77,14 @@ vector<gsl_matrix*> Network::getWeights() const {
 //
 
 gsl_vector* Network::feedforward(gsl_vector* a) {
-  vector<gsl_matrix*>::const_iterator itWeights = weights.begin();
-  for(vector<gsl_vector*>::iterator itBiases = biases.begin(); itBiases != biases.end(); ++itBiases) {
-    gsl_vector* aNew = gsl_vector_alloc((*itWeights)->size1);
+  vector<gsl_matrix*>::const_iterator itWeightsLayer = weights.begin();
+  for(gsl_vector* biasesLayer: biases) {
+    gsl_vector* aNew = gsl_vector_alloc((*itWeightsLayer)->size1);
 
     // product of weights matrix and activation vector
-    gsl_blas_dgemv(CblasNoTrans, 1.0, *itWeights, a, 0.0, aNew);
-    // sum biases vector and product result
-    gsl_blas_daxpy(1.0, *itBiases, aNew);
+    gsl_blas_dgemv(CblasNoTrans, 1.0, *itWeightsLayer, a, 0.0, aNew);
+    // sum biasesLayer vector and product result
+    gsl_blas_daxpy(1.0, biasesLayer, aNew);
     // sigmoid on new vector
     SigmoidVectorized(aNew);
 
@@ -101,21 +101,20 @@ gsl_vector* Network::feedforward(gsl_vector* a) {
 void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatchSize, const double& eta, const DataSet& testData) {
 
   int nTestData     = testData.size();
-  int nTrainingData = trainingData.size();
 
+  // training epochs
   for (int i=1; i<=epochs; i++){
     random_shuffle( trainingData.begin(), trainingData.end() );
 
-    for (int j=0; j< nTrainingData; j=j + miniBatchSize) {
+    for (DataSet::iterator startMiniBatch = trainingData.begin(); startMiniBatch != trainingData.end(); startMiniBatch = startMiniBatch + miniBatchSize) {
       // build miniBatch from trainingsData
-      DataSet::const_iterator startMiniBatch = trainingData.begin() + j;
-      DataSet::const_iterator endMiniBatch   = trainingData.begin() + j + miniBatchSize;
+      DataSet::iterator endMiniBatch = startMiniBatch + miniBatchSize;
       DataSet miniBatch(startMiniBatch, endMiniBatch);
-      // cout << miniBatch.size() << endl;
+      //cout << miniBatch.size() << endl;
     }
 
     if (nTestData != 0) {
-      cout << "Epoche " << i << " " << evaluate({}) << endl;
+      cout << "Epoche " << i << " " << evaluate(testData) << "/" << nTestData << endl;
     } else {
       cout << "Epoche " << i << " completed." << endl;
     }
