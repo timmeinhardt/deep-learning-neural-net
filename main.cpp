@@ -5,21 +5,15 @@ using namespace std;
 
 int main( int argc, const char* argv[] )
 {
-  cout << "Network\n";
-  gsl_vector* activation = gsl_vector_alloc(2);
+  cout << "Network\n" << endl;
 
-  for (int i=0; i<activation->size; i++){
-    gsl_vector_set(activation, i, i);
-  }
-
-  Network Network({2, 3, 1});
-  cout << endl;
+  int numNeuronsInput = 748;
+  Network Network({numNeuronsInput, 30, 10});
   
-  DataSet trainingData = DataSet(500);
-  DataSet testData = DataSet(100); 
-  Network.SGD(trainingData, 30, 10, 3.0, testData);
-  PrintVector(Network.feedforward(activation));
-  cout << endl;
+  DataSet trainingData = BuildDataSet(500, numNeuronsInput);
+  DataSet testData = BuildDataSet(100, numNeuronsInput);
+
+  Network.SGD(trainingData, 10, 10, 3.0, testData); 
   
   return 0;
 }

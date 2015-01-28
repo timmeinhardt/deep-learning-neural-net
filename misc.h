@@ -19,6 +19,9 @@ gsl_vector* SigmoidPrimeVectorized(gsl_vector*);
 gsl_rng* GetGslRng();
 gsl_vector* RandomGaussianGslVector(const gsl_rng*, const int);
 gsl_matrix* RandomGaussianGslMatrix(const gsl_rng*, const int, const int);
+
+DataSet BuildDataSet(const int, const int);
+
 void PrintVector(const gsl_vector*);
 void PrintMatrix(const gsl_matrix*);
 

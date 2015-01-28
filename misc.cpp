@@ -38,6 +38,16 @@ void PrintMatrix(const gsl_matrix* m) {
 	}
 }
 
+DataSet BuildDataSet(const int setSize,const int numNeuronsInput) {
+	gsl_rng* rng = GetGslRng();
+	DataSet set;
+
+	for(int i=0; i<setSize; i++) {
+		set.push_back(tuple<gsl_vector* , int>(RandomGaussianGslVector(rng, numNeuronsInput), i%10));
+	}
+	return set;
+}
+
 gsl_rng* GetGslRng() {
   gsl_rng* rng;
 	int random_seed = (int)time(NULL);
