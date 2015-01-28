@@ -26,7 +26,7 @@ public:
   vector<gsl_matrix*> getWeights() const;
 
   // Methods
-  gsl_vector* feedforward(gsl_vector*);
+  gsl_vector* feedforward(const gsl_vector*);
 
   void SGD(DataSet&, const int&, const int&, const double&, const DataSet& testData={});
     // non-const DataSet& - random_shuffle()

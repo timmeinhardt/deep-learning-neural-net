@@ -54,11 +54,16 @@ vector<gsl_matrix*> Network::getWeights() const {
 // Class Methods
 //
 
-gsl_vector* Network::feedforward(gsl_vector* a) {
+// TODO: REFACTOR
+gsl_vector* Network::feedforward(const gsl_vector* activation) {
   vector<gsl_matrix*>::const_iterator itWeightsLayer = weights.begin();
-  for(gsl_vector* biasesLayer: biases) {
-    gsl_vector* aNew = gsl_vector_alloc((*itWeightsLayer)->size1);
+  gsl_vector* a = gsl_vector_alloc(activation->size);
+  gsl_vector_memcpy(a, activation);
 
+  for(gsl_vector* biasesLayer: biases) {
+    // aNew with j of weights matrix
+    gsl_vector* aNew = gsl_vector_alloc((*itWeightsLayer)->size1);
+    
     // product of weights matrix and activation vector
     gsl_blas_dgemv(CblasNoTrans, 1.0, *itWeightsLayer, a, 0.0, aNew);
     // sum biasesLayer vector and product result
