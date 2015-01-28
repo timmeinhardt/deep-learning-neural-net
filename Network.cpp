@@ -12,18 +12,19 @@ Network::Network() {
 Network::Network(vector<int> sizes) {
 	numLayers = sizes.size();
 	sizes = sizes;
+  gsl_rng* rng = GetGslRng();
 
 	// setBiases
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
-    biases.push_back( RandomGaussianGslVector(numNeurons) );
+    biases.push_back( RandomGaussianGslVector(rng, numNeurons) );
 	}
 
 	// setWeights
   for(vector<int>::iterator it = sizes.begin(); it != sizes.end() - 1; ++it) {
   	int numNeurons = *(it+1);
   	int numNeuronsPreviewsLayer = *it;
-  	weights.push_back( RandomGaussianGslMatrix(numNeurons, numNeuronsPreviewsLayer) );
+  	weights.push_back( RandomGaussianGslMatrix(rng, numNeurons, numNeuronsPreviewsLayer) );
 	}
 }
 

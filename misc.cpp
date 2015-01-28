@@ -47,9 +47,7 @@ gsl_rng* GetGslRng() {
 	return rng;
 }
 
-gsl_vector* RandomGaussianGslVector(const int i) {
-	gsl_rng* rng = GetGslRng();
-
+gsl_vector* RandomGaussianGslVector(const gsl_rng* rng, const int i) {
 	gsl_vector* v = gsl_vector_alloc(i);
 
   for (int it = 0; it < i; it++) {
@@ -58,9 +56,7 @@ gsl_vector* RandomGaussianGslVector(const int i) {
   return v;
 }
 
-gsl_matrix* RandomGaussianGslMatrix(const int i, const int j) {
-	gsl_rng* rng = GetGslRng();
-
+gsl_matrix* RandomGaussianGslMatrix(const gsl_rng* rng, const int i, const int j) {
   gsl_matrix* m = gsl_matrix_alloc(i, j);
 
   for (int it = 0; it < i; it++) {

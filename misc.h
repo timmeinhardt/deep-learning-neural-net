@@ -15,8 +15,10 @@ typedef vector<tuple<gsl_vector* , int>> DataSet;
 
 gsl_vector* SigmoidVectorized(gsl_vector*);
 gsl_vector* SigmoidPrimeVectorized(gsl_vector*);
-gsl_vector* RandomGaussianGslVector(const int);
-gsl_matrix* RandomGaussianGslMatrix(const int, const int);
+
+gsl_rng* GetGslRng();
+gsl_vector* RandomGaussianGslVector(const gsl_rng*, const int);
+gsl_matrix* RandomGaussianGslMatrix(const gsl_rng*, const int, const int);
 void PrintVector(const gsl_vector*);
 void PrintMatrix(const gsl_matrix*);
 
