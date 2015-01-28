@@ -38,4 +38,38 @@ void PrintMatrix(const gsl_matrix* m) {
 	}
 }
 
+gsl_rng* GetGslRng() {
+  gsl_rng* rng;
+	int random_seed = (int)time(NULL);
+	rng = gsl_rng_alloc(gsl_rng_mt19937);
+	gsl_rng_set(rng, random_seed);
+
+	return rng;
+}
+
+gsl_vector* RandomGaussianGslVector(const int i) {
+	gsl_rng* rng = GetGslRng();
+
+	gsl_vector* v = gsl_vector_alloc(i);
+
+  for (int it = 0; it < i; it++) {
+    gsl_vector_set(v, it, gsl_ran_gaussian(rng, 1.0));
+  }
+  return v;
+}
+
+gsl_matrix* RandomGaussianGslMatrix(const int i, const int j) {
+	gsl_rng* rng = GetGslRng();
+
+  gsl_matrix* m = gsl_matrix_alloc(i, j);
+
+  for (int it = 0; it < i; it++) {
+  	for (int jt = 0; jt < j; jt++)
+  	{
+      gsl_matrix_set(m, it, jt, gsl_ran_gaussian(rng, 1.0));
+  	}
+  }
+  return m;
+}
+
   

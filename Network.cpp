@@ -10,42 +10,20 @@ Network::Network() {
 }
 
 Network::Network(vector<int> sizes) {
-
-  // initialize rng
-  gsl_rng *rng;
-	int random_seed = (int)time(NULL);
-	rng = gsl_rng_alloc(gsl_rng_mt19937);
-	gsl_rng_set(rng, random_seed);
-
 	numLayers = sizes.size();
 	sizes = sizes;
 
 	// setBiases
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
-
-  	gsl_vector* biasesNeuron = gsl_vector_alloc(numNeurons);
-
-    for (int i = 0; i < numNeurons; i++) {
-      gsl_vector_set (biasesNeuron, i, gsl_ran_gaussian(rng, 1.0));
-    }
-    biases.push_back(biasesNeuron);
+    biases.push_back( RandomGaussianGslVector(numNeurons) );
 	}
 
 	// setWeights
   for(vector<int>::iterator it = sizes.begin(); it != sizes.end() - 1; ++it) {
   	int numNeurons = *(it+1);
   	int numNeuronsPreviewsLayer = *it;
-
-    gsl_matrix* weightsLayer = gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer);
-
-    for (int i = 0; i < numNeurons; i++) {
-    	for (int j = 0; j < numNeuronsPreviewsLayer; ++j)
-    	{
-        gsl_matrix_set(weightsLayer, i, j, gsl_ran_gaussian(rng, 1.0));
-    	}
-    }
-  	weights.push_back(weightsLayer);
+  	weights.push_back( RandomGaussianGslMatrix(numNeurons, numNeuronsPreviewsLayer) );
 	}
 }
 
@@ -92,7 +70,7 @@ gsl_vector* Network::feedforward(gsl_vector* a) {
     gsl_vector_free(a);
     a = aNew;
 
-    ++itWeights; 
+    ++itWeightsLayer; 
   }
 
   return a;
@@ -100,7 +78,7 @@ gsl_vector* Network::feedforward(gsl_vector* a) {
 
 void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatchSize, const double& eta, const DataSet& testData) {
 
-  int nTestData     = testData.size();
+  int nTestData = testData.size();
 
   // training epochs
   for (int i=1; i<=epochs; i++){
