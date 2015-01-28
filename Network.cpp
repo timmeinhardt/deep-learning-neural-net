@@ -105,8 +105,16 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
   }
 }
 
-int Network::evaluate(const DataSet& trainingData) {
-  return 2;
+int Network::evaluate(const DataSet& testData) {
+  int result = 0;
+  for (tuple<gsl_vector* , int> tuple: testData) {
+    gsl_vector* activation = get<0>(tuple);
+    int output = get<1>(tuple);
+    if (gsl_vector_max_index(feedforward(activation)) == output) {
+      result++;
+    }
+  }
+  return result;
 }
 
 
