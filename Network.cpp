@@ -9,9 +9,9 @@ Network::Network() {
 	sizes = {};
 }
 
-Network::Network(vector<int> sizes) {
-	numLayers = sizes.size();
-	sizes = sizes;
+Network::Network(vector<int> newSizes) {
+	numLayers = newSizes.size();
+	sizes = newSizes;
   gsl_rng* rng = GetGslRng();
 
 	// setBiases
@@ -43,11 +43,11 @@ vector<int> Network::getSizes() const {
 	return sizes;
 }
 
-vector<gsl_vector*> Network::getBiases() const {
+vectorV Network::getBiases() const {
 	return biases;
 }
 
-vector<gsl_matrix*> Network::getWeights() const {
+vectorM Network::getWeights() const {
 	return weights;
 }
 
@@ -57,7 +57,7 @@ vector<gsl_matrix*> Network::getWeights() const {
 
 // TODO: REFACTOR
 gsl_vector* Network::feedforward(const gsl_vector* activation) {
-  vector<gsl_matrix*>::const_iterator itWeightsLayer = weights.begin();
+  vectorM::const_iterator itWeightsLayer = weights.begin();
   gsl_vector* a = gsl_vector_alloc(activation->size);
   gsl_vector_memcpy(a, activation);
 
@@ -94,7 +94,7 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
       // build miniBatch from trainingsData
       DataSet::iterator endMiniBatch = startMiniBatch + miniBatchSize;
       DataSet miniBatch(startMiniBatch, endMiniBatch);
-      //cout << miniBatch.size() << endl;
+      update_mini_batch(miniBatch, eta);
     }
 
     if (nTestData != 0) {
@@ -107,9 +107,9 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
 
 int Network::evaluate(const DataSet& testData) {
   int result = 0;
-  for (tuple<gsl_vector* , int> tuple: testData) {
-    gsl_vector* activation = get<0>(tuple);
-    int output = get<1>(tuple);
+  for (pair<gsl_vector*, int> pair: testData) {
+    gsl_vector* activation = pair.first;
+    int output = pair.second;
     if (gsl_vector_max_index(feedforward(activation)) == output) {
       result++;
     }

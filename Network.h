@@ -21,24 +21,25 @@ public:
 
   vector<int> getSizes() const;
 
-  vector<gsl_vector*> getBiases() const;
+  vectorV getBiases() const;
 
-  vector<gsl_matrix*> getWeights() const;
+  vectorM getWeights() const;
 
   // Methods
-  gsl_vector* feedforward(const gsl_vector*);
-
   void SGD(DataSet&, const int&, const int&, const double&, const DataSet& testData={});
     // non-const DataSet& - random_shuffle()
 	
 private:
   int numLayers;
 	vector<int> sizes;
-	vector<gsl_vector*> biases;
-	vector<gsl_matrix*> weights;
+	vectorV biases;
+	vectorM weights;
 
   // Methods
   int evaluate(const DataSet&);
+
+  gsl_vector* feedforward(const gsl_vector*);
+
 };
 
 #endif

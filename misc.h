@@ -11,7 +11,9 @@
 #include <gsl/gsl_blas.h>
 
 using namespace std;
-typedef vector<tuple<gsl_vector* , int>> DataSet;
+typedef vector<pair<gsl_vector*, int>> DataSet;
+typedef vector<gsl_vector*> vectorV;
+typedef vector<gsl_matrix*> vectorM;
 
 gsl_vector* SigmoidVectorized(gsl_vector*);
 gsl_vector* SigmoidPrimeVectorized(gsl_vector*);
