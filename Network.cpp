@@ -117,4 +117,25 @@ int Network::evaluate(const DataSet& testData) {
   return result;
 }
 
+void Network::update_mini_batch(const DataSet& miniBatch, const double& eta) {
+  // set zero biases as nabla start
+  vectorV nabla_biases;
+  for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
+    int numNeurons = *it;
+    nabla_biases.push_back( gsl_vector_alloc (numNeurons) );
+  }
+
+  // set zero weights as nabla start
+  vectorM nabla_weights;
+  for(vector<int>::iterator it = sizes.begin(); it != sizes.end() - 1; ++it) {
+    int numNeurons = *(it+1);
+    int numNeuronsPreviewsLayer = *it;
+    nabla_weights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
+  }
+  
+  for (pair<gsl_vector*, int> pair: miniBatch) {
+    //
+  }
+}
+
 
