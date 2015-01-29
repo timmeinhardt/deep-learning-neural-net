@@ -41,6 +41,8 @@ private:
   gsl_vector* feedforward(const gsl_vector*);
 
   void train_with_mini_batch(const DataSet&, const double&);
+
+  pair<vectorV, vectorM> backprop(const pair<gsl_vector*, int>);
 };
 
 #endif

@@ -148,9 +148,32 @@ void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta)
     nabla_weights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
   }
   
-  for (pair<gsl_vector*, int> pair: miniBatch) {
-    //
+  // iterate over training pairs and update biases and weights
+  for (pair<gsl_vector*, int> trainingPair: miniBatch) {
+    pair<vectorV, vectorM> nablas = backprop(trainingPair);
   }
+}
+
+//
+// Back propagation
+//
+pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int>) {
+  // set zero biases as placeholder
+  vectorV nabla_biases;
+  for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
+    int numNeurons = *it;
+    nabla_biases.push_back( gsl_vector_alloc (numNeurons) );
+  }
+
+  // set zero weights as placeholder
+  vectorM nabla_weights;
+  for(vector<int>::iterator it = sizes.begin(); it != sizes.end() - 1; ++it) {
+    int numNeurons = *(it+1);
+    int numNeuronsPreviewsLayer = *it;
+    nabla_weights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
+  }
+
+  return pair<vectorV, vectorM>(nabla_biases, nabla_weights);
 }
 
 
