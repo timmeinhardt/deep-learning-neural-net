@@ -40,7 +40,7 @@ private:
 
   gsl_vector* feedforward(const gsl_vector*);
 
-  void update_mini_batch(const DataSet&, const double&);
+  void train_with_mini_batch(const DataSet&, const double&);
 };
 
 #endif

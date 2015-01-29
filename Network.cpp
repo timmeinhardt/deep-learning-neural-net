@@ -55,7 +55,10 @@ vectorM Network::getWeights() const {
 // Class Methods
 //
 
+//
+// Feedforward activation through neural net
 // TODO: REFACTOR
+//
 gsl_vector* Network::feedforward(const gsl_vector* activation) {
   vectorM::const_iterator itWeightsLayer = weights.begin();
   gsl_vector* a = gsl_vector_alloc(activation->size);
@@ -82,6 +85,9 @@ gsl_vector* Network::feedforward(const gsl_vector* activation) {
   return a;
 }
 
+//
+// Start stochastic gradient descent
+//
 void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatchSize, const double& eta, const DataSet& testData) {
 
   int nTestData = testData.size();
@@ -90,13 +96,16 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
   for (int i=1; i<=epochs; i++){
     random_shuffle( trainingData.begin(), trainingData.end() );
 
+    // split trainingData and train with miniBatch
     for (DataSet::iterator startMiniBatch = trainingData.begin(); startMiniBatch != trainingData.end(); startMiniBatch = startMiniBatch + miniBatchSize) {
       // build miniBatch from trainingsData
       DataSet::iterator endMiniBatch = startMiniBatch + miniBatchSize;
       DataSet miniBatch(startMiniBatch, endMiniBatch);
-      update_mini_batch(miniBatch, eta);
+
+      train_with_mini_batch(miniBatch, eta);
     }
 
+    // evaluate test data and print result for each epoche
     if (nTestData != 0) {
       cout << "Epoche " << i << " " << evaluate(testData) << "/" << nTestData << endl;
     } else {
@@ -105,6 +114,9 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
   }
 }
 
+//
+// Evaluate test data
+//
 int Network::evaluate(const DataSet& testData) {
   int result = 0;
   for (pair<gsl_vector*, int> pair: testData) {
@@ -117,7 +129,10 @@ int Network::evaluate(const DataSet& testData) {
   return result;
 }
 
-void Network::update_mini_batch(const DataSet& miniBatch, const double& eta) {
+//
+// Train neural net with trainings data
+//
+void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta) {
   // set zero biases as nabla start
   vectorV nabla_biases;
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
