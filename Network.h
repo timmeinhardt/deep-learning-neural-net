@@ -27,7 +27,7 @@ public:
 
   // Methods
   void SGD(DataSet&, const int&, const int&, const double&, const DataSet& testData={});
-    // non-const DataSet& - random_shuffle()
+    // non-const DataSet& because of random_shuffle()
 	
 private:
   int numLayers;

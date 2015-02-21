@@ -11,7 +11,7 @@
 #include <gsl/gsl_blas.h>
 
 using namespace std;
-typedef vector<pair<gsl_vector*, int>> DataSet;
+typedef vector<pair<gsl_vector*, int> > DataSet;
 typedef vector<gsl_vector*> vectorV;
 typedef vector<gsl_matrix*> vectorM;
 
