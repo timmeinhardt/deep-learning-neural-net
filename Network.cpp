@@ -134,36 +134,36 @@ int Network::evaluate(const DataSet& testData) {
 //
 void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta) {
   // set zero biases as nabla start
-  vectorV nabla_biases;
+  vectorV nablaBiases;
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
-    nabla_biases.push_back( gsl_vector_alloc (numNeurons) );
+    nablaBiases.push_back( gsl_vector_alloc(numNeurons) );
   }
 
   // set zero weights as nabla start
-  vectorM nabla_weights;
+  vectorM nablaWeights;
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
     int numNeuronsPreviewsLayer = *(it - 1);
-    nabla_weights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
+    nablaWeights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
   }
   
   // iterate over training pairs and update biases and weights
   for (pair<gsl_vector*, int> trainingPair: miniBatch) {
-    pair<vectorV, vectorM> delta_nablas = backprop(trainingPair);
+    pair<vectorV, vectorM> deltaNablas = backprop(trainingPair);
 
-    // add delta_nabla_biases from backprob(trainingsPair) to nabla_biases
-    vectorV::const_iterator it_nabla_biases = nabla_biases.begin();
-    for(gsl_vector* delta_nabla_bias: delta_nablas.first) { 
-      gsl_vector_add(*it_nabla_biases, delta_nabla_bias);
-      ++it_nabla_biases;
+    // add deltaNablaBiases from backprob(trainingsPair) to nablaBiases
+    vectorV::const_iterator itNablaBiases = nablaBiases.begin();
+    for(gsl_vector* deltaNablaBias: deltaNablas.first) { 
+      gsl_vector_add(*itNablaBiases, deltaNablaBias);
+      ++itNablaBiases;
     }
 
-    // add delta_nabla_weights from backprob(trainingsPair) to nabla_weights
-    vectorM::const_iterator it_nabla_weights = nabla_weights.begin();
-    for(gsl_matrix* delta_nabla_weight: delta_nablas.second) { 
-      gsl_matrix_add(*it_nabla_weights, delta_nabla_weight);
-      ++it_nabla_weights;
+    // add deltaNablaWeights from backprob(trainingsPair) to nablaWeights
+    vectorM::const_iterator itNablaWeights = nablaWeights.begin();
+    for(gsl_matrix* deltaNablaWeight: deltaNablas.second) { 
+      gsl_matrix_add(*itNablaWeights, deltaNablaWeight);
+      ++itNablaWeights;
     }
   }
 
@@ -175,21 +175,21 @@ void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta)
 //
 pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int>) {
   // set zero biases as placeholder
-  vectorV nabla_biases;
+  vectorV nablaBiases;
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
-    nabla_biases.push_back( gsl_vector_alloc (numNeurons) );
+    nablaBiases.push_back( gsl_vector_alloc (numNeurons) );
   }
 
   // set zero weights as placeholder
-  vectorM nabla_weights;
+  vectorM nablaWeights;
   for(vector<int>::iterator it = sizes.begin(); it != sizes.end() - 1; ++it) {
     int numNeurons = *(it+1);
     int numNeuronsPreviewsLayer = *it;
-    nabla_weights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
+    nablaWeights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
   }
 
-  return pair<vectorV, vectorM>(nabla_biases, nabla_weights);
+  return pair<vectorV, vectorM>(nablaBiases, nablaWeights);
 }
 
 
