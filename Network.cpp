@@ -14,17 +14,13 @@ Network::Network(vector<int> newSizes) {
 	sizes = newSizes;
   gsl_rng* rng = GetGslRng();
 
-	// setBiases
+	// set random biases and weights 
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
+    int numNeuronsPreviewsLayer = *(it - 1);
+    
     biases.push_back( RandomGaussianGslVector(rng, numNeurons) );
-	}
-
-	// setWeights
-  for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
-  	int numNeurons = *it;
-  	int numNeuronsPreviewsLayer = *(it - 1);
-  	weights.push_back( RandomGaussianGslMatrix(rng, numNeurons, numNeuronsPreviewsLayer) );
+    weights.push_back( RandomGaussianGslMatrix(rng, numNeurons, numNeuronsPreviewsLayer) );
 	}
 }
 
@@ -92,7 +88,7 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
 
   int nTestData = testData.size();
 
-  // training epochs
+  // iterate over training epochs, train network with random miniBatch and evaluate testData
   for (int i=1; i<=epochs; i++){
     random_shuffle( trainingData.begin(), trainingData.end() );
 
@@ -133,22 +129,20 @@ int Network::evaluate(const DataSet& testData) {
 // Train neural net with trainings data
 //
 void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta) {
-  // set zero biases as nabla start
-  vectorV nablaBiases;
-  for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
-    int numNeurons = *it;
-    nablaBiases.push_back( gsl_vector_alloc(numNeurons) );
-  }
+  const double updateRuleFactor = eta / miniBatch.size();
 
-  // set zero weights as nabla start
+  // set nabla for biases and weights with all zeros
+  vectorV nablaBiases;
   vectorM nablaWeights;
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
     int numNeuronsPreviewsLayer = *(it - 1);
-    nablaWeights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
+
+    nablaBiases.push_back( gsl_vector_calloc(numNeurons) );
+    nablaWeights.push_back( gsl_matrix_calloc(numNeurons, numNeuronsPreviewsLayer) );
   }
   
-  // iterate over training pairs and update biases and weights
+  // iterate over training pairs and build gradient descent nablas
   for (pair<gsl_vector*, int> trainingPair: miniBatch) {
     pair<vectorV, vectorM> deltaNablas = backprop(trainingPair);
 
@@ -167,26 +161,36 @@ void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta)
     }
   }
 
-  // free gsl nablas???
+  // update weights via gradient descent update rule
+  vectorV::const_iterator itBiases = biases.begin();
+  for(gsl_vector* nablaBias: nablaBiases) {
+    gsl_vector_scale(nablaBias, updateRuleFactor);
+    gsl_vector_add(*itBiases, nablaBias);
+    ++itBiases;
+  }
+
+  // update weights via gradient descent update rule
+  vectorM::const_iterator itWeights = weights.begin();
+  for(gsl_matrix* nablaWeight: nablaWeights) {
+    gsl_matrix_scale(nablaWeight, updateRuleFactor);
+    gsl_matrix_add(*itWeights, nablaWeight); 
+    ++itWeights;
+  }
 }
 
 //
 // Back propagation
 //
-pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int>) {
-  // set zero biases as placeholder
+pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPair) {
+  // set zero biases and weights as placeholder
   vectorV nablaBiases;
+  vectorM nablaWeights;
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
-    nablaBiases.push_back( gsl_vector_alloc (numNeurons) );
-  }
+    int numNeuronsPreviewsLayer = *(it - 1);
 
-  // set zero weights as placeholder
-  vectorM nablaWeights;
-  for(vector<int>::iterator it = sizes.begin(); it != sizes.end() - 1; ++it) {
-    int numNeurons = *(it+1);
-    int numNeuronsPreviewsLayer = *it;
-    nablaWeights.push_back( gsl_matrix_alloc(numNeurons, numNeuronsPreviewsLayer) );
+    nablaBiases.push_back( gsl_vector_calloc (numNeurons) );
+    nablaWeights.push_back( gsl_matrix_calloc(numNeurons, numNeuronsPreviewsLayer) );
   }
 
   return pair<vectorV, vectorM>(nablaBiases, nablaWeights);
