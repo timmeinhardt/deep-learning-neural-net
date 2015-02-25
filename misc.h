@@ -15,6 +15,8 @@ typedef vector<pair<gsl_vector*, int> > DataSet;
 typedef vector<gsl_vector*> vectorV;
 typedef vector<gsl_matrix*> vectorM;
 
+gsl_vector* MatrixVectorMultiAndSum(const gsl_matrix*, const gsl_vector*, const gsl_vector*);
+
 gsl_vector* SigmoidVectorized(gsl_vector*);
 gsl_vector* SigmoidPrimeVectorized(gsl_vector*);
 
