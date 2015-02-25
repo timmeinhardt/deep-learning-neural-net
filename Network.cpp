@@ -55,19 +55,15 @@ vectorM Network::getWeights() const {
 // Feedforward activation through neural net
 // TODO: REFACTOR
 //
-gsl_vector* Network::feedforward(const gsl_vector* activation) {
-  vectorM::const_iterator itWeightsLayer = weights.begin();
+gsl_vector* Network::feedforward(const gsl_vector* activation) { 
   gsl_vector* a = gsl_vector_alloc(activation->size);
   gsl_vector_memcpy(a, activation);
+  gsl_vector* aNew;
 
+  vectorM::const_iterator itWeightsLayer = weights.begin();
   for(gsl_vector* biasesLayer: biases) {
-    // aNew with j of weights matrix
-    gsl_vector* aNew = gsl_vector_alloc((*itWeightsLayer)->size1);
-    
-    // product of weights matrix and activation vector
-    gsl_blas_dgemv(CblasNoTrans, 1.0, *itWeightsLayer, a, 0.0, aNew);
-    // sum biasesLayer vector and product result
-    gsl_blas_daxpy(1.0, biasesLayer, aNew);
+
+    aNew = MatrixVectorMultiAndSum(*itWeightsLayer, a, biasesLayer);
     // sigmoid on new vector
     SigmoidVectorized(aNew);
 
@@ -192,6 +188,26 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
     nablaBiases.push_back( gsl_vector_calloc (numNeurons) );
     nablaWeights.push_back( gsl_matrix_calloc(numNeurons, numNeuronsPreviewsLayer) );
   }
+
+  gsl_vector* activation = trainingPair.first;
+  vectorV activations;
+  vectorV zVectors;
+  activations.push_back(activation);
+
+  //
+  vectorM::const_iterator itWeights = weights.begin();
+  for(gsl_vector* bias: biases) {
+    gsl_vector* z = MatrixVectorMultiAndSum(*itWeights, activation, bias);
+    zVectors.push_back(z);
+    
+    activation = gsl_vector_alloc(z->size);
+    gsl_vector_memcpy(activation, z);
+    SigmoidVectorized(activation);
+    activations.push_back(activation);
+
+    ++itWeights;
+  }
+  PrintVector(zVectors.last);
 
   return pair<vectorV, vectorM>(nablaBiases, nablaWeights);
 }

@@ -1,7 +1,15 @@
 #include "misc.h"
 
+gsl_vector* MatrixVectorMultiAndSum(const gsl_matrix* m, const gsl_vector* v1, const gsl_vector* v2) {
+  gsl_vector* vNew = gsl_vector_alloc((m)->size1);
+    
+  gsl_blas_dgemv(CblasNoTrans, 1.0, m, v1, 0.0, vNew);
+  gsl_vector_add(vNew, v2);
+  return vNew;
+}
+
 double Sigmoid(double z) {
-	return 1.0/(1.0 + exp(-z));
+  return 1.0/(1.0 + exp(-z));
 }
 
 gsl_vector* SigmoidVectorized(gsl_vector* v) {
