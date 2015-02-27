@@ -56,8 +56,7 @@ vectorM Network::getWeights() const {
 // TODO: REFACTOR
 //
 gsl_vector* Network::feedforward(const gsl_vector* activation) { 
-  gsl_vector* a = gsl_vector_alloc(activation->size);
-  gsl_vector_memcpy(a, activation);
+  gsl_vector* a = CopyOfGslVector(activation);
   gsl_vector* aNew;
 
   vectorM::const_iterator itWeightsLayer = weights.begin();
@@ -94,7 +93,7 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
       DataSet::iterator endMiniBatch = startMiniBatch + miniBatchSize;
       DataSet miniBatch(startMiniBatch, endMiniBatch);
 
-      train_with_mini_batch(miniBatch, eta);
+      trainWithMiniBatch(miniBatch, eta);
     }
 
     // evaluate test data and print result for each epoche
@@ -124,19 +123,13 @@ int Network::evaluate(const DataSet& testData) {
 //
 // Train neural net with trainings data
 //
-void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta) {
+void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& eta) {
   const double updateRuleFactor = eta / miniBatch.size();
 
   // set nabla for biases and weights with all zeros
-  vectorV nablaBiases;
-  vectorM nablaWeights;
-  for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
-    int numNeurons = *it;
-    int numNeuronsPreviewsLayer = *(it - 1);
-
-    nablaBiases.push_back( gsl_vector_calloc(numNeurons) );
-    nablaWeights.push_back( gsl_matrix_calloc(numNeurons, numNeuronsPreviewsLayer) );
-  }
+  pair<vectorV, vectorM> placeholders = PlaceholderBiasesAndWeights();
+  vectorV nablaBiases   = placeholders.first;
+  vectorM nablaWeights  = placeholders.second;
   
   // iterate over training pairs and build gradient descent nablas
   for (pair<gsl_vector*, int> trainingPair: miniBatch) {
@@ -179,15 +172,9 @@ void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta)
 //
 pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPair) {
   // set zero biases and weights as placeholder
-  vectorV nablaBiases;
-  vectorM nablaWeights;
-  for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
-    int numNeurons = *it;
-    int numNeuronsPreviewsLayer = *(it - 1);
-
-    nablaBiases.push_back( gsl_vector_calloc (numNeurons) );
-    nablaWeights.push_back( gsl_matrix_calloc(numNeurons, numNeuronsPreviewsLayer) );
-  }
+  pair<vectorV, vectorM> nablas = PlaceholderBiasesAndWeights();
+  vectorV nablaBiases   = nablas.first;
+  vectorM nablaWeights  = nablas.second;
 
   // set training output vector from trainingPair
   gsl_vector* output = gsl_vector_calloc(sizes.back());
@@ -205,15 +192,30 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
     zVectors.push_back(z);
    
     // allocate new activation vector so the z vector is not changed 
-    activation = gsl_vector_alloc(z->size);
-    gsl_vector_memcpy(activation, z);
+    activation = CopyOfGslVector(z);
     SigmoidVectorized(activation);
     activations.push_back(activation);
 
     ++itWeights;
   }
 
-  return pair<vectorV, vectorM>(nablaBiases, nablaWeights);
+  return nablas;
 }
 
+//
+// Returns pair of all zero biases and weights
+//
+pair<vectorV, vectorM> Network::PlaceholderBiasesAndWeights() {
+  vectorV placeholderBiases;
+  vectorM placeholderWeights;
+  for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
+    int numNeurons = *it;
+    int numNeuronsPreviewsLayer = *(it - 1);
+
+    placeholderBiases.push_back( gsl_vector_calloc (numNeurons) );
+    placeholderWeights.push_back( gsl_matrix_calloc(numNeurons, numNeuronsPreviewsLayer) );
+  }
+
+  return pair<vectorV, vectorM>(placeholderBiases, placeholderWeights);
+}
 

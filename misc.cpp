@@ -86,4 +86,11 @@ gsl_matrix* RandomGaussianGslMatrix(const gsl_rng* rng, const int i, const int j
   return m;
 }
 
+gsl_vector* CopyOfGslVector(const gsl_vector* v) {
+  gsl_vector* copy = gsl_vector_alloc(v->size);
+  gsl_vector_memcpy(copy, v);
+
+  return copy;
+}
+
   

@@ -40,9 +40,11 @@ private:
   // Methods
   int evaluate(const DataSet&);
 
-  void train_with_mini_batch(const DataSet&, const double&);
+  void trainWithMiniBatch(const DataSet&, const double&);
 
   pair<vectorV, vectorM> backprop(const pair<gsl_vector*, int>);
+
+  pair<vectorV, vectorM> PlaceholderBiasesAndWeights();
 };
 
 #endif

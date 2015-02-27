@@ -28,5 +28,6 @@ DataSet BuildDataSet(const int, const int);
 
 void PrintVector(const gsl_vector*);
 void PrintMatrix(const gsl_matrix*);
+gsl_vector* CopyOfGslVector(const gsl_vector* v);
 
 #endif
