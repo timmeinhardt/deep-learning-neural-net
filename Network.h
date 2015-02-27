@@ -28,6 +28,8 @@ public:
   // Methods
   void SGD(DataSet&, const int&, const int&, const double&, const DataSet& testData={});
     // non-const DataSet& because of random_shuffle()
+
+  gsl_vector* feedforward(const gsl_vector*);
 	
 private:
   int numLayers;
@@ -37,8 +39,6 @@ private:
 
   // Methods
   int evaluate(const DataSet&);
-
-  gsl_vector* feedforward(const gsl_vector*);
 
   void train_with_mini_batch(const DataSet&, const double&);
 

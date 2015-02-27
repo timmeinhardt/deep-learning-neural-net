@@ -142,14 +142,14 @@ void Network::train_with_mini_batch(const DataSet& miniBatch, const double& eta)
   for (pair<gsl_vector*, int> trainingPair: miniBatch) {
     pair<vectorV, vectorM> deltaNablas = backprop(trainingPair);
 
-    // add deltaNablaBiases from backprob(trainingsPair) to nablaBiases
+    // add deltaNablaBiases from backprob(trainingPair) to nablaBiases
     vectorV::const_iterator itNablaBiases = nablaBiases.begin();
     for(gsl_vector* deltaNablaBias: deltaNablas.first) { 
       gsl_vector_add(*itNablaBiases, deltaNablaBias);
       ++itNablaBiases;
     }
 
-    // add deltaNablaWeights from backprob(trainingsPair) to nablaWeights
+    // add deltaNablaWeights from backprob(trainingPair) to nablaWeights
     vectorM::const_iterator itNablaWeights = nablaWeights.begin();
     for(gsl_matrix* deltaNablaWeight: deltaNablas.second) { 
       gsl_matrix_add(*itNablaWeights, deltaNablaWeight);
@@ -189,6 +189,10 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
     nablaWeights.push_back( gsl_matrix_calloc(numNeurons, numNeuronsPreviewsLayer) );
   }
 
+  // set training output vector from trainingPair
+  gsl_vector* output = gsl_vector_calloc(sizes.back());
+  gsl_vector_set(output, trainingPair.second, 1.0);
+
   gsl_vector* activation = trainingPair.first;
   vectorV activations;
   vectorV zVectors;
@@ -199,7 +203,8 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
   for(gsl_vector* bias: biases) {
     gsl_vector* z = MatrixVectorMultiAndSum(*itWeights, activation, bias);
     zVectors.push_back(z);
-    
+   
+    // allocate new activation vector so the z vector is not changed 
     activation = gsl_vector_alloc(z->size);
     gsl_vector_memcpy(activation, z);
     SigmoidVectorized(activation);
