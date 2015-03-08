@@ -151,7 +151,7 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateR
   // update weights via gradient descent update rule
   vectorV::const_iterator nablaBias = nablaBiases.begin();
   for(gsl_vector* bias: biases) {
-    gsl_vector_add_constant(bias, -1 * updateRuleFactor);
+    gsl_vector_add_constant(bias, - updateRuleFactor);
     gsl_vector_mul(bias, *nablaBias);
     ++nablaBias;
   }
@@ -159,7 +159,7 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateR
   // update weights via gradient descent update rule
   vectorM::const_iterator nablaWeight = nablaWeights.begin();
   for(gsl_matrix* weight: weights) {
-    gsl_matrix_add_constant(weight, -1 * updateRuleFactor);
+    gsl_matrix_add_constant(weight, - updateRuleFactor);
     gsl_matrix_mul(weight, *nablaWeight); 
     ++nablaWeight;
   }
@@ -200,11 +200,23 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
   // delta = (activations.back() - output) * zVectors.back()
   gsl_vector* delta = CopyOfGslVector(activations.back());
   gsl_vector_sub(delta, output);
-  SigmoidPrimeVectorized(zVectors.back());
-  gsl_vector_mul(delta, zVectors.back());
+  gsl_vector* spv = SigmoidPrimeVectorized(zVectors.end()[-1]);
+  gsl_vector_mul(delta, spv);
 
   nablaBiases.end()[-1] = delta;
   nablaWeights.end()[-1] = gsl_matrix_mul_for_vectors(delta, activations.end()[-2]);
+
+  for (int l = 2; l < numLayers; l++) {
+    spv   = SigmoidPrimeVectorized(zVectors.end()[-l]);
+
+    // delta = (weights[-l+1] * delta) * spv
+    delta = gsl_vector_alloc(( weights.end()[-l+1] )->size2);
+    gsl_blas_dgemv(CblasTrans, 1.0, weights.end()[-l+1], nablaBiases.end()[-l+1], 0.0, delta); 
+    gsl_vector_mul(delta, spv);
+
+    nablaBiases.end()[-l]  = delta;
+    nablaWeights.end()[-l] = gsl_matrix_mul_for_vectors(delta, activations.end()[-l-1]);
+  }
 
   return nablas;
 }
