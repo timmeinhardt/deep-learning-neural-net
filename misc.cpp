@@ -9,13 +9,31 @@ gsl_vector* MatrixVectorMultiAndSum(const gsl_matrix* m, const gsl_vector* v1, c
 }
 
 int gsl_matrix_mul(gsl_matrix* m1, const gsl_matrix* m2) {
+  double multi;
+
   for (size_t i = 0; i < m1->size1; i++) {
     for (size_t j = 0; j < m1->size2; j++) {
-      double multi = gsl_matrix_get(m1, i, j) * gsl_matrix_get(m2, i, j);
+      multi = gsl_matrix_get(m1, i, j) * gsl_matrix_get(m2, i, j);
       gsl_matrix_set(m1, i, j, multi);
     }
   }
   return 0;
+}
+
+gsl_matrix* gsl_matrix_mul_for_vectors(const gsl_vector* v1, const gsl_vector* v2) {
+  int i = v1->size;
+  int j = v2->size;
+  double multi;
+  gsl_matrix* m = gsl_matrix_alloc(i, j);
+
+  for (int it = 0; it < i; it++) {
+    for (int jt = 0; jt < j; jt++)
+    {
+      multi = gsl_vector_get(v1, it) * gsl_vector_get(v2, jt);
+      gsl_matrix_set(m, it, jt, multi);
+    }
+  }  
+  return m;
 }
 
 double Sigmoid(double z) {

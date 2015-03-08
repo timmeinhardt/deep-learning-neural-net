@@ -204,6 +204,7 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
   gsl_vector_mul(delta, zVectors.back());
 
   nablaBiases.end()[-1] = delta;
+  nablaWeights.end()[-1] = gsl_matrix_mul_for_vectors(delta, activations.end()[-2]);
 
   return nablas;
 }

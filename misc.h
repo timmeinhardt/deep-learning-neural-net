@@ -16,6 +16,7 @@ typedef vector<gsl_vector*> vectorV;
 typedef vector<gsl_matrix*> vectorM;
 
 gsl_vector* MatrixVectorMultiAndSum(const gsl_matrix*, const gsl_vector*, const gsl_vector*);
+gsl_matrix* gsl_matrix_mul_for_vectors(const gsl_vector*, const gsl_vector*);
 int gsl_matrix_mul(gsl_matrix*, const gsl_matrix*);
 
 gsl_vector* SigmoidVectorized(gsl_vector*);
