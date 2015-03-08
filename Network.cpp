@@ -14,7 +14,7 @@ Network::Network(vector<int> newSizes) {
 	sizes = newSizes;
   gsl_rng* rng = GetGslRng();
 
-	// set random biases and weights 
+	// set random biases vectors and weights matrices for each layer 
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
     int numNeurons = *it;
     int numNeuronsPreviewsLayer = *(it - 1);
@@ -80,8 +80,8 @@ gsl_vector* Network::feedforward(const gsl_vector* activation) {
 // Start stochastic gradient descent
 //
 void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatchSize, const double& eta, const DataSet& testData) {
-
-  int nTestData = testData.size();
+  const double updateRuleFactor = eta / miniBatchSize;
+  const int nTestData = testData.size();
 
   // iterate over training epochs, train network with random miniBatch and evaluate testData
   for (int i=1; i<=epochs; i++){
@@ -93,7 +93,7 @@ void Network::SGD(DataSet& trainingData, const int& epochs, const int& miniBatch
       DataSet::iterator endMiniBatch = startMiniBatch + miniBatchSize;
       DataSet miniBatch(startMiniBatch, endMiniBatch);
 
-      trainWithMiniBatch(miniBatch, eta);
+      trainWithMiniBatch(miniBatch, updateRuleFactor);
     }
 
     // evaluate test data and print result for each epoche
@@ -123,13 +123,11 @@ int Network::evaluate(const DataSet& testData) {
 //
 // Train neural net with trainings data
 //
-void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& eta) {
-  const double updateRuleFactor = eta / miniBatch.size();
-
+void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateRuleFactor) {
   // set nabla for biases and weights with all zeros
   pair<vectorV, vectorM> placeholders = PlaceholderBiasesAndWeights();
-  vectorV nablaBiases   = placeholders.first;
-  vectorM nablaWeights  = placeholders.second;
+  vectorV & nablaBiases   = placeholders.first;
+  vectorM & nablaWeights  = placeholders.second;
   
   // iterate over training pairs and build gradient descent nablas
   for (pair<gsl_vector*, int> trainingPair: miniBatch) {
@@ -151,19 +149,19 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& eta) {
   }
 
   // update weights via gradient descent update rule
-  vectorV::const_iterator itBiases = biases.begin();
-  for(gsl_vector* nablaBias: nablaBiases) {
-    gsl_vector_scale(nablaBias, updateRuleFactor);
-    gsl_vector_add(*itBiases, nablaBias);
-    ++itBiases;
+  vectorV::const_iterator nablaBias = nablaBiases.begin();
+  for(gsl_vector* bias: biases) {
+    gsl_vector_add_constant(bias, -1 * updateRuleFactor);
+    gsl_vector_mul(bias, *nablaBias);
+    ++nablaBias;
   }
 
   // update weights via gradient descent update rule
-  vectorM::const_iterator itWeights = weights.begin();
-  for(gsl_matrix* nablaWeight: nablaWeights) {
-    gsl_matrix_scale(nablaWeight, updateRuleFactor);
-    gsl_matrix_add(*itWeights, nablaWeight); 
-    ++itWeights;
+  vectorM::const_iterator nablaWeight = nablaWeights.begin();
+  for(gsl_matrix* weight: weights) {
+    gsl_matrix_add_constant(weight, -1 * updateRuleFactor);
+    gsl_matrix_mul(weight, *nablaWeight); 
+    ++nablaWeight;
   }
 }
 
@@ -173,8 +171,8 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& eta) {
 pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPair) {
   // set zero biases and weights as placeholder
   pair<vectorV, vectorM> nablas = PlaceholderBiasesAndWeights();
-  vectorV nablaBiases   = nablas.first;
-  vectorM nablaWeights  = nablas.second;
+  vectorV & nablaBiases   = nablas.first;
+  vectorM & nablaWeights  = nablas.second;
 
   // set training output vector from trainingPair
   gsl_vector* output = gsl_vector_calloc(sizes.back());
@@ -198,6 +196,14 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
 
     ++itWeights;
   }
+
+  // delta = (activations.back() - output) * zVectors.back()
+  gsl_vector* delta = CopyOfGslVector(activations.back());
+  gsl_vector_sub(delta, output);
+  SigmoidPrimeVectorized(zVectors.back());
+  gsl_vector_mul(delta, zVectors.back());
+
+  nablaBiases.end()[-1] = delta;
 
   return nablas;
 }

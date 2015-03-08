@@ -8,6 +8,16 @@ gsl_vector* MatrixVectorMultiAndSum(const gsl_matrix* m, const gsl_vector* v1, c
   return vNew;
 }
 
+int gsl_matrix_mul(gsl_matrix* m1, const gsl_matrix* m2) {
+  for (size_t i = 0; i < m1->size1; i++) {
+    for (size_t j = 0; j < m1->size2; j++) {
+      double multi = gsl_matrix_get(m1, i, j) * gsl_matrix_get(m2, i, j);
+      gsl_matrix_set(m1, i, j, multi);
+    }
+  }
+  return 0;
+}
+
 double Sigmoid(double z) {
   return 1.0/(1.0 + exp(-z));
 }
@@ -42,8 +52,8 @@ void PrintMatrix(const gsl_matrix* m) {
       cout << gsl_matrix_get(m, i, j) << " ";
     }
     cout << endl;
-  cout << endl;
 	}
+  cout << endl;
 }
 
 DataSet BuildDataSet(const int setSize,const int numNeuronsInput) {
