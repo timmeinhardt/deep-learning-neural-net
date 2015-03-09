@@ -1,6 +1,8 @@
 #include "Network.h"
 #include "misc.h"
 
+#include "mnist_loader.cpp"
+
 using namespace std;
 
 int main( int argc, const char* argv[] )
