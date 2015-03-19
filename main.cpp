@@ -1,13 +1,20 @@
 #include "Network.h"
 #include "misc.h"
 
-#include "mnist_loader.cpp"
+#include "loader.cpp"
 
 using namespace std;
 
 int main( int argc, const char* argv[] )
 {
   cout << "Network" << endl;
+
+  Loader Loader;
+
+  const char* imageFile = "train-images-idx3-ubyte";
+  const char* labelFile = "train-labels-idx1-ubyte";
+
+  Loader.Parse(imageFile, labelFile);
 
   int numNeuronsInput = 748;
   Network Network({numNeuronsInput, 30, 10});
