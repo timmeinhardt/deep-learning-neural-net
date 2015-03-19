@@ -1,5 +1,4 @@
-#ifndef Network_H
-#define Network_H
+#pragma once
 
 #include "misc.h"
 
@@ -46,5 +45,3 @@ private:
 
   pair<vectorV, vectorM> PlaceholderBiasesAndWeights();
 };
-
-#endif
