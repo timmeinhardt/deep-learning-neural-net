@@ -125,7 +125,7 @@ int Network::evaluate(const DataSet& testData) {
 //
 void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateRuleFactor) {
   // set nabla for biases and weights with all zeros
-  pair<vectorV, vectorM> placeholders = PlaceholderBiasesAndWeights();
+  pair<vectorV, vectorM> placeholders = mallocPlaceholders();
   vectorV & nablaBiases   = placeholders.first;
   vectorM & nablaWeights  = placeholders.second;
   
@@ -146,6 +146,8 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateR
       gsl_matrix_add(*itNablaWeights, deltaNablaWeight);
       ++itNablaWeights;
     }
+    
+    freePlaceholders(deltaNablas);
   }
 
   // update weights via gradient descent update rule
@@ -163,6 +165,8 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateR
     gsl_matrix_mul(weight, *nablaWeight); 
     ++nablaWeight;
   }
+
+  freePlaceholders(placeholders);
 }
 
 //
@@ -170,9 +174,9 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateR
 //
 pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPair) {
   // set zero biases and weights as placeholder
-  pair<vectorV, vectorM> nablas = PlaceholderBiasesAndWeights();
-  vectorV & nablaBiases   = nablas.first;
-  vectorM & nablaWeights  = nablas.second;
+  pair<vectorV, vectorM> nablas = mallocPlaceholders();
+  vectorV& nablaBiases   = nablas.first;
+  vectorM& nablaWeights  = nablas.second;
 
   // set training output vector from trainingPair
   gsl_vector* output = gsl_vector_calloc(sizes.back());
@@ -224,7 +228,7 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
 //
 // Returns pair of all zero biases and weights
 //
-pair<vectorV, vectorM> Network::PlaceholderBiasesAndWeights() {
+pair<vectorV, vectorM> Network::mallocPlaceholders() {
   vectorV placeholderBiases;
   vectorM placeholderWeights;
   for(vector<int>::iterator it = sizes.begin() + 1; it != sizes.end(); ++it) {
@@ -236,5 +240,18 @@ pair<vectorV, vectorM> Network::PlaceholderBiasesAndWeights() {
   }
 
   return pair<vectorV, vectorM>(placeholderBiases, placeholderWeights);
+}
+
+//
+// Free placeholder vectors
+//
+void Network::freePlaceholders(pair<vectorV, vectorM> placeholders) {
+  for(gsl_vector* bias: placeholders.first) {
+    gsl_vector_free(bias);
+  }
+
+  for(gsl_matrix* weight: placeholders.second) {
+    gsl_matrix_free(weight);
+  }
 }
 

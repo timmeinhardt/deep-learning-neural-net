@@ -43,5 +43,6 @@ private:
 
   pair<vectorV, vectorM> backprop(const pair<gsl_vector*, int>);
 
-  pair<vectorV, vectorM> PlaceholderBiasesAndWeights();
+  pair<vectorV, vectorM> mallocPlaceholders();
+  void freePlaceholders(pair<vectorV, vectorM>);
 };
