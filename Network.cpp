@@ -204,7 +204,7 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
   gsl_vector_mul(delta, spv);
 
   nablaBiases.end()[-1] = delta;
-  nablaWeights.end()[-1] = gsl_matrix_mul_for_vectors(delta, activations.end()[-2]);
+  gsl_matrix_mul_for_vectors(nablaWeights.end()[-1], delta, activations.end()[-2]);
 
   for (int l = 2; l < numLayers; l++) {
     spv   = SigmoidPrimeVectorized(zVectors.end()[-l]);
@@ -215,7 +215,7 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
     gsl_vector_mul(delta, spv);
 
     nablaBiases.end()[-l]  = delta;
-    nablaWeights.end()[-l] = gsl_matrix_mul_for_vectors(delta, activations.end()[-l-1]);
+    gsl_matrix_mul_for_vectors(nablaWeights.end()[-l], delta, activations.end()[-l-1]);
   }
 
   return nablas;

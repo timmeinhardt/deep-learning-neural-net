@@ -20,20 +20,17 @@ int gsl_matrix_mul(gsl_matrix* m1, const gsl_matrix* m2) {
   return 0;
 }
 
-gsl_matrix* gsl_matrix_mul_for_vectors(const gsl_vector* v1, const gsl_vector* v2) {
-  int i = v1->size;
-  int j = v2->size;
+int gsl_matrix_mul_for_vectors(gsl_matrix* m, const gsl_vector* v1, const gsl_vector* v2) {
   double multi;
-  gsl_matrix* m = gsl_matrix_alloc(i, j);
 
-  for (int it = 0; it < i; it++) {
-    for (int jt = 0; jt < j; jt++)
+  for (int i = 0; i < m->size1; i++) {
+    for (int j = 0; j < m->size2; j++)
     {
-      multi = gsl_vector_get(v1, it) * gsl_vector_get(v2, jt);
-      gsl_matrix_set(m, it, jt, multi);
+      multi = gsl_vector_get(v1, i) * gsl_vector_get(v2, j);
+      gsl_matrix_set(m, i, j, multi);
     }
   }  
-  return m;
+  return 0;
 }
 
 double Sigmoid(double z) {
