@@ -67,7 +67,7 @@ const uint8_t* Loader::GetCategoryData() const
     return m_categoryBuffer;
   }
 
-int Loader::Parse(const char* imageFile, const char* labelFile)
+int Loader::Parse(DataSet& set, const char* imageFile, const char* labelFile)
   {
     FILE* fimg = nullptr;
     fimg = fopen(imageFile, "rb");
@@ -94,7 +94,7 @@ int Loader::Parse(const char* imageFile, const char* labelFile)
     // Read magic number
     assert(!feof(fimg));
     fread(&value, sizeof(uint32_t), 1, fimg);
-    printf("Image Magic        :%0X(%0X)\n", ntohl(value), value);
+    printf("Image Magic        :%0X(%u)\n", ntohl(value), ntohl(value));
     //assert(ntohl(value) == 0x00000803);
 
     // Read count
@@ -136,7 +136,8 @@ int Loader::Parse(const char* imageFile, const char* labelFile)
     size_t counter = 0;
     while (!feof(fimg) && !feof(flabel) && counter < m_count)
     {
-      float* imageBuffer = &m_imageBuffer[counter * m_imageSize];
+      //float* imageBuffer = &m_imageBuffer[counter * m_imageSize];
+      gsl_vector* v = gsl_vector_alloc(m_imageSize);
 
       for (size_t j = 0; j < m_height; ++j)
       {
@@ -145,14 +146,16 @@ int Loader::Parse(const char* imageFile, const char* labelFile)
           uint8_t pixel;
           fread(&pixel, sizeof(uint8_t), 1, fimg);
 
-          imageBuffer[j * m_width + i] = pixel;
+          //imageBuffer[j * m_width + i] = pixel;
+          gsl_vector_set(v, j+i, pixel);
         }
       }
 
       uint8_t cat;
       fread(&cat, sizeof(uint8_t), 1, flabel);
       // assert(cat >= 0 && cat < c_categoryCount);
-      m_categoryBuffer[counter] = cat;
+      // m_categoryBuffer[counter] = cat;
+      set.push_back(pair<gsl_vector*, int>(v, cat));
 
       ++counter;
     }

@@ -8,6 +8,8 @@
 
 #include <machine/endian.h>
 
+#include "misc.h"
+
 using namespace std;
 
 class Loader final {
@@ -28,7 +30,7 @@ public:
 
   void Print();
 
-  int Parse(const char*, const char*);
+  int Parse(DataSet&, const char*, const char*);
 
 private:  
   size_t m_count; // The total number of images

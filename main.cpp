@@ -9,19 +9,20 @@ int main( int argc, const char* argv[] )
 {
   cout << "Network" << endl;
 
-  Loader Loader;
-
   const char* imageFile = "train-images-idx3-ubyte";
   const char* labelFile = "train-labels-idx1-ubyte";
 
-  Loader.Parse(imageFile, labelFile);
+  Loader Loader;
+  DataSet mnistData;
+  cout << "load data..." << endl;
+  Loader.Parse(mnistData, imageFile, labelFile);
 
-  int numNeuronsInput = 748;
+  DataSet trainingData(mnistData.begin() + 200, mnistData.begin() + 1000);
+  DataSet testData(mnistData.begin(), mnistData.begin() + 200 );
+
+  int numNeuronsInput = Loader.GetImageSize();
   Network Network({numNeuronsInput, 30, 10});
-  
-  DataSet trainingData = BuildDataSet(500, numNeuronsInput);
-  DataSet testData = BuildDataSet(100, numNeuronsInput);
-
+  cout << "train network..." << endl;
   Network.SGD(trainingData, 10, 10, 3.0, testData);
 
   return 0;
