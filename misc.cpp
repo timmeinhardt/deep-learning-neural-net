@@ -61,6 +61,20 @@ void PrintVector(const gsl_vector* v) {
   cout << endl;
 }
 
+void PrintImageVector(const gsl_vector* v) {
+  double rows = sqrt(v->size);
+  double columns = rows;
+
+  for (int i=0; i < rows; i++){
+    for (int j=0; j < columns; j++) {
+      int index = columns * i + j;
+      cout << gsl_vector_get(v, index) << " ";
+    }
+    cout << endl;
+  }
+  cout << endl;
+}
+
 void PrintMatrix(const gsl_matrix* m) {
   for (size_t i = 0; i < m->size1; i++) {
     for (size_t j = 0; j < m->size2; j++) {
