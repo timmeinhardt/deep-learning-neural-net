@@ -113,6 +113,7 @@ int Network::evaluate(const DataSet& testData) {
   for (pair<gsl_vector*, int> pair: testData) {
     gsl_vector* activation = pair.first;
     int output = pair.second;
+    
     if (gsl_vector_max_index(feedforward(activation)) == output) {
       result++;
     }

@@ -139,16 +139,12 @@ int Loader::Parse(DataSet& set, const char* imageFile, const char* labelFile)
       //float* imageBuffer = &m_imageBuffer[counter * m_imageSize];
       gsl_vector* v = gsl_vector_alloc(m_imageSize);
 
-      for (size_t j = 0; j < m_height; ++j)
+      for (size_t i = 0; i < m_height * m_width; ++i)
       {
-        for (size_t i = 0; i < m_width; ++i)
-        {
-          uint8_t pixel;
-          fread(&pixel, sizeof(uint8_t), 1, fimg);
-
-          //imageBuffer[j * m_width + i] = pixel;
-          gsl_vector_set(v, j+i, pixel);
-        }
+        uint8_t pixel;
+        fread(&pixel, sizeof(uint8_t), 1, fimg);
+        //imageBuffer[j * m_width + i] = pixel;
+        gsl_vector_set(v, i, pixel);
       }
 
       uint8_t cat;
