@@ -154,16 +154,16 @@ void Network::trainWithMiniBatch(const DataSet& miniBatch, const double& updateR
   // update weights via gradient descent update rule
   vectorV::const_iterator nablaBias = nablaBiases.begin();
   for(gsl_vector* bias: biases) {
-    gsl_vector_add_constant(bias, - updateRuleFactor);
-    gsl_vector_mul(bias, *nablaBias);
+    gsl_vector_scale(*nablaBias, updateRuleFactor);
+    gsl_vector_sub(bias, *nablaBias);
     ++nablaBias;
   }
 
   // update weights via gradient descent update rule
   vectorM::const_iterator nablaWeight = nablaWeights.begin();
   for(gsl_matrix* weight: weights) {
-    gsl_matrix_add_constant(weight, - updateRuleFactor);
-    gsl_matrix_mul(weight, *nablaWeight); 
+    gsl_matrix_scale(*nablaWeight, updateRuleFactor);
+    gsl_matrix_sub(weight, *nablaWeight); 
     ++nablaWeight;
   }
 

@@ -23,7 +23,7 @@ int main( int argc, const char* argv[] )
   int numNeuronsInput = Loader.GetImageSize();
   Network Network({numNeuronsInput, 30, 10});
   cout << "train network..." << endl;
-  Network.SGD(trainingData, 30, 10, 3.0, testData);
+  Network.SGD(trainingData, 10, 10, 3.0, testData);
 
   return 0;
 }
