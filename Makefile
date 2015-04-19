@@ -1,4 +1,4 @@
-run: all
+run: clean all
 	./network
 
 all: main.o misc.o network.o loader.o

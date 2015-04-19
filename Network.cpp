@@ -59,10 +59,10 @@ gsl_vector* Network::feedforward(const gsl_vector* activation) {
   gsl_vector* a = CopyOfGslVector(activation);
   gsl_vector* aNew;
 
-  vectorM::const_iterator itWeightsLayer = weights.begin();
-  for(gsl_vector* biasesLayer: biases) {
+  vectorM::const_iterator itWeights = weights.begin();
+  for(gsl_vector* bias: biases) {
 
-    aNew = MatrixVectorMultiAndSum(*itWeightsLayer, a, biasesLayer);
+    aNew = MatrixVectorMultiAndSum(*itWeights, a, bias);
     // sigmoid on new vector
     SigmoidVectorized(aNew);
 
@@ -70,7 +70,7 @@ gsl_vector* Network::feedforward(const gsl_vector* activation) {
     gsl_vector_free(a);
     a = aNew;
 
-    ++itWeightsLayer; 
+    ++itWeights; 
   }
 
   return a;
@@ -203,7 +203,7 @@ pair<vectorV, vectorM> Network::backprop(const pair<gsl_vector*, int> trainingPa
   }
 
   // delta = (activations.back() - output) * zVectors.back()
-  gsl_vector* delta = CopyOfGslVector(activations.back());
+  gsl_vector* delta = CopyOfGslVector(activations.end()[-1]);
   gsl_vector_sub(delta, output);
   gsl_vector* spv = SigmoidPrimeVectorized(zVectors.end()[-1]);
   gsl_vector_mul(delta, spv);

@@ -22,12 +22,14 @@ int gsl_matrix_mul(gsl_matrix* m1, const gsl_matrix* m2) {
 
 int gsl_matrix_mul_for_vectors(gsl_matrix* m, const gsl_vector* v1, const gsl_vector* v2) {
   double multi;
+  int rows    = m->size1;
+  int columns = m->size2;
 
-  for (int i = 0; i < m->size1; i++) {
-    for (int j = 0; j < m->size2; j++)
+  for (int row = 0; row < rows; row++) {
+    for (int column = 0; column < columns; column++)
     {
-      multi = gsl_vector_get(v1, i) * gsl_vector_get(v2, j);
-      gsl_matrix_set(m, i, j, multi);
+      multi = gsl_vector_get(v1, row) * gsl_vector_get(v2, column);
+      gsl_matrix_set(m, row, column, multi);
     }
   }  
   return 0;
